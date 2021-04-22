@@ -1,0 +1,20 @@
+/execute as <player_name> run give @s minecraft:iron_sword # выдать железный меч
+/execute as <player_name> run give @s minecraft:golden_carrot 12 # выдать 12 золотых морковей
+/execute as <player_name> run give @s minecraft:shield  # щит для стримера
+/execute as <player_name> run summon minecraft:arrow ~ ~3 ~ # пнуть стримера
+/execute as <player_name> run give @s minecraft:ender_pearl 3 # выдать 3 эндер-жемчуга
+/execute as <player_name> run summon minecraft:evoker_fangs # укусить стримера
+/execute as <player_name> run effect give @s minecraft:resistance 60 255 true # эффект неуязвимости на 1 минуту
+/execute as <player_name> run summon minecraft:creeper # спавн крипера
+/execute as <player_name> run effect give @s minecraft:resistance 300 255 true # эффект неуязвимости на 5 минут
+/execute as <player_name> run give @s minecraft:totem_of_undying # выдать тотем бессмертия
+/execute as <player_name> run summon minecraft:lightning_bolt # ударить стримера молнией
+/execute as <player_name> run effect give @s minecraft:jump_boost 15 127 true # стример прырает очень высоко
+/execute as <player_name> run replaceitem entity @s armor.head minecraft:carved_pumpkin{Enchantments:[{id:"minecraft:binding_curse",lvl:1}]} # головной убор для стримера
+/execute as <player_name> run give @s minecraft:stick{Enchantments:[{id:"minecraft:vanishing_curse",lvl:1}, {id:"minecraft:knockback",lvl:25}]} # палка на откидывание
+/execute as <player_name> run setblock ~ ~-1 ~ minecraft:chest{Items:[{id:netherite_sword,Damage:8,Slot:13,Count:1},{id:gold_ingot,Slot:12,Count:16},{id:gold_ingot,Slot:14,Count:16},{id:diamond_block,Slot:4,Count:1},{id:diamond_block,Slot:22,Count:1}]} replace # подарок стримеру
+/execute as <player_name> run fill ~5 ~100 ~5 ~-5 0 ~-5 minecraft:air # как сквозь землю провалился
+/execute as <player_name> run fill ~3 ~20 ~3 ~-3 ~20 ~-3 minecraft:anvil # том и джерри
+/
+/
+/
