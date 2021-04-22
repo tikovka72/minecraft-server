@@ -1,6 +1,7 @@
 from subprocess import Popen, PIPE
 import requests
 import argparse
+import time
 
 SUCCESS = 200
 NOT_MOD = 304
@@ -12,12 +13,16 @@ class AuthError(Exception):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--need-java", default=0)
+parser.add_argument("--end-point", default="http://127.0.0.1:4848")
+parser.add_argument("--key", default="000")
 args = parser.parse_args()
 NEED_JAVA = args.need_java
+END_POINT = args.end_pos
+KEY = args.key
 
 
 class Listener:
-    def __init__(self, server_name="server.jar", end_point="http://127.0.0.1:4545", key=None):
+    def __init__(self, server_name="server.jar", end_point=END_POINT, key=None):
         if not key:
             raise AuthError
         self.key = key
@@ -31,9 +36,9 @@ class Listener:
         self.run_commands()
 
     @staticmethod
-    def replace_user(command, user):
+    def replace_user(command, user=None):
         if "<user>" in command:
-            return command.replace("<user>", user)
+            return command.replace("<user>", user or "@a")
         return command
 
     def get_command(self, command_id: str):
@@ -45,12 +50,14 @@ class Listener:
         return r.json()[1]
 
     def run_commands(self):
-        for pay_id, command_id, username in self:
-            command = self.get_command(command_id)
-            command_with_user = self.replace_user(command, username)
-            if self.server:
-                self.server.stdin.write(bytes(command_with_user + "\r\n", "ascii"))
-                self.server.stdin.flush()
+        for data in self:
+            if data:
+                pay_id, command_id = data
+                command = self.get_command(command_id)
+                command_with_user = self.replace_user(command)
+                if self.server:
+                    self.server.stdin.write(bytes(command_with_user + "\r\n", "ascii"))
+                    self.server.stdin.flush()
 
     def __iter__(self):
         return self
@@ -61,11 +68,12 @@ class Listener:
         while code == NOT_MOD:
             resp = requests.get(self.end_point + "/resolve", params={"key": self.key})
             code = resp.status_code
+            time.sleep(0.5)
         if code != SUCCESS:
             return
         return resp.json()
 
 
 if __name__ == "__main__":
-    listener = Listener(key="1341")
+    listener = Listener(key=KEY)
     listener.start()
