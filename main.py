@@ -83,7 +83,7 @@ class Listener:
             code = resp.status_code
             time.sleep(0.5)
             requests.post(self.end_point + "/announce_players_list",
-                          data={"list": json.dumps(self.get_players_list()), "key": "key"})
+                          data={"list": json.dumps(self.get_players_list()), "key": self.key})
         if code != SUCCESS:
             return
         try:
