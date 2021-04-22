@@ -2,9 +2,12 @@ from subprocess import Popen, PIPE
 import requests
 import argparse
 import time
+import json
 
 SUCCESS = 200
 NOT_MOD = 304
+
+LOG_LINE = "of a max of 20 players online:"
 
 
 class AuthError(Exception):
@@ -13,11 +16,11 @@ class AuthError(Exception):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--need-java", default=0)
-parser.add_argument("--end-point", default="http://127.0.0.1:4848")
+parser.add_argument("--end-point", default="http://167.172.46.121:4545/")
 parser.add_argument("--key", default="000")
 args = parser.parse_args()
 NEED_JAVA = args.need_java
-END_POINT = args.end_pos
+END_POINT = args.end_point
 KEY = args.key
 
 
@@ -34,6 +37,16 @@ class Listener:
 
     def start(self):
         self.run_commands()
+
+    def get_players_list(self):
+        self.server.stdin.write(bytes("list" + "\r\n", "ascii"))
+        self.server.stdin.flush()
+
+        with open("logs/latest.log") as lo:
+            logs = lo.read()
+            logs = logs[logs.rfind(LOG_LINE) + len(LOG_LINE):]
+            logs = logs[:logs.find("[")]
+            return logs.split()
 
     @staticmethod
     def replace_user(command, user=None):
@@ -69,9 +82,14 @@ class Listener:
             resp = requests.get(self.end_point + "/resolve", params={"key": self.key})
             code = resp.status_code
             time.sleep(0.5)
+            requests.post(self.end_point + "/announce_players_list",
+                          data={"list": json.dumps(self.get_players_list()), "key": "key"})
         if code != SUCCESS:
             return
-        return resp.json()
+        try:
+            return resp.json()
+        except json.decoder.JSONDecodeError:
+            return
 
 
 if __name__ == "__main__":
