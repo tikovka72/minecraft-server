@@ -1,5 +1,6 @@
 from subprocess import Popen, PIPE
 import requests
+import argparse
 
 SUCCESS = 200
 NOT_MOD = 304
@@ -9,14 +10,19 @@ class AuthError(Exception):
     ...
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--need-java", default=0)
+args = parser.parse_args()
+NEED_JAVA = args.need_java
+
+
 class Listener:
     def __init__(self, server_name="server.jar", end_point="http://127.0.0.1:4545", key=None):
-        need_java = 0
         if not key:
             raise AuthError
         self.key = key
         self.server = None
-        if need_java:
+        if NEED_JAVA:
             self.server = Popen(f"java -Xmx1024M -Xms1024M -jar {server_name} nogui",
                                 stdin=PIPE, shell=True)
         self.end_point = end_point
@@ -36,7 +42,7 @@ class Listener:
                          params={"key": self.key, "command_id": command_id})
         if r.status_code != 200:
             return None
-        return r.json()["command"]
+        return r.json()[1]
 
     def run_commands(self):
         for pay_id, command_id, username in self:
