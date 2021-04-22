@@ -43,7 +43,7 @@ class Listener:
             command = self.get_command(command_id)
             command_with_user = self.replace_user(command, username)
             if self.server:
-                self.server.stdin.write(bytes(command_with_user-+ + "\r\n", "ascii"))
+                self.server.stdin.write(bytes(command_with_user + "\r\n", "ascii"))
                 self.server.stdin.flush()
 
     def __iter__(self):
