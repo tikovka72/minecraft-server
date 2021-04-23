@@ -45,25 +45,29 @@ class Listener:
         self.run_commands()
 
     def get_players_list(self):
+        print(1)
         if os.path.getsize("logs/latest.log") != self.last_log_size:
+            print(2)
             with open("logs/latest.log") as lo:
                 logs = lo.read()
-                self.last_log_size = path.getsize("logs/latest.log")
+                self.last_log_size = os.path.getsize("logs/latest.log")
                 logs = logs[logs.find(self.last_log) + len(self.last_log):]
                 log_ = ""
                 for log in logs.split("\n"):
                     log_ = log
+                    print(log)
                     if join_text in log:
                         player = log[log.find("]: ") + 3:log.find(join_text)]
+                        print(player + " join")
                         if player not in self.players:
                             self.players.append(player)
                     elif leave_text in log:
                         player = log[log.find("]: ") + 3:log.find(leave_text)]
+                        print(player + " left")
                         if player in self.players:
                             self.players.remove(player)
                 self.last_log = log_
         return self.players
-
 
     @staticmethod
     def replace_user(command, user=None):
