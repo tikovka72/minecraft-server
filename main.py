@@ -45,9 +45,7 @@ class Listener:
         self.run_commands()
 
     def get_players_list(self):
-        print(1)
         if os.path.getsize("logs/latest.log") != self.last_log_size:
-            print(2)
             with open("logs/latest.log") as lo:
                 logs = lo.read()
                 self.last_log_size = os.path.getsize("logs/latest.log")
@@ -55,15 +53,12 @@ class Listener:
                 log_ = ""
                 for log in logs.split("\n"):
                     log_ = log
-                    print(log)
                     if join_text in log:
                         player = log[log.find("]: ") + 3:log.find(join_text)]
-                        print(player + " join")
                         if player not in self.players:
                             self.players.append(player)
                     elif leave_text in log:
                         player = log[log.find("]: ") + 3:log.find(leave_text)]
-                        print(player + " left")
                         if player in self.players:
                             self.players.remove(player)
                 self.last_log = log_
@@ -86,9 +81,9 @@ class Listener:
     def run_commands(self):
         for data in self:
             if data:
-                pay_id, command_id = data
+                pay_id, command_id, user = data
                 command = self.get_command(command_id)
-                command_with_user = self.replace_user(command)
+                command_with_user = self.replace_user(command, user)
                 if self.server:
                     self.server.stdin.write(bytes(command_with_user + "\r\n", "ascii"))
                     self.server.stdin.flush()
