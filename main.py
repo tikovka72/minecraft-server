@@ -3,6 +3,7 @@ import requests
 import argparse
 import time
 import json
+import os
 
 SUCCESS = 200
 NOT_MOD = 304
@@ -22,6 +23,8 @@ args = parser.parse_args()
 NEED_JAVA = args.need_java
 END_POINT = args.end_point
 KEY = args.key
+join_text = " joined the game"
+leave_text = " left the game"
 
 
 class Listener:
@@ -34,19 +37,33 @@ class Listener:
             self.server = Popen(f"java -Xmx1024M -Xms1024M -jar {server_name} nogui",
                                 stdin=PIPE, shell=True)
         self.end_point = end_point
+        self.players = []
+        self.last_log_size = 0
+        self.last_log = ""
 
     def start(self):
         self.run_commands()
 
     def get_players_list(self):
-        self.server.stdin.write(bytes("list" + "\r\n", "ascii"))
-        self.server.stdin.flush()
+        if os.path.getsize("logs/latest.log") != self.last_log_size:
+            with open("logs/latest.log") as lo:
+                logs = lo.read()
+                self.last_log_size = path.getsize("logs/latest.log")
+                logs = logs[logs.find(self.last_log) + len(self.last_log):]
+                log_ = ""
+                for log in logs.split("\n"):
+                    log_ = log
+                    if join_text in log:
+                        player = log[log.find("]: ") + 3:log.find(join_text)]
+                        if player not in self.players:
+                            self.players.append(player)
+                    elif leave_text in log:
+                        player = log[log.find("]: ") + 3:log.find(leave_text)]
+                        if player in self.players:
+                            self.players.remove(player)
+                self.last_log = log_
+        return self.players
 
-        with open("logs/latest.log") as lo:
-            logs = lo.read()
-            logs = logs[logs.rfind(LOG_LINE) + len(LOG_LINE):]
-            logs = logs[:logs.find("[")]
-            return logs.split()
 
     @staticmethod
     def replace_user(command, user=None):
@@ -58,7 +75,7 @@ class Listener:
         # return "/give Mihendy gold_block"  # test
         r = requests.get(self.end_point + "/get_command",
                          params={"key": self.key, "command_id": command_id})
-        if r.status_code != 200:
+        if r.status_code != SUCCESS:
             return None
         return r.json()[1]
 
